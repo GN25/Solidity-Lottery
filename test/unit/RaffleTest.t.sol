@@ -6,7 +6,9 @@ import {DeployRaffle} from "script/DeployRaffle.s.sol";
 import {HelperConfig, CodeConstants} from "script/HelperConfig.s.sol";
 import {Raffle} from "src/Raffle.sol";
 import {Vm} from "forge-std/Vm.sol";
-import {VRFCoordinatorV2_5Mock} from "lib/chainlink-brownie-contracts/contracts/src/v0.8/vrf/mocks/VRFCoordinatorV2_5Mock.sol";
+import {
+    VRFCoordinatorV2_5Mock
+} from "lib/chainlink-brownie-contracts/contracts/src/v0.8/vrf/mocks/VRFCoordinatorV2_5Mock.sol";
 
 contract RaffleTest is Test, CodeConstants {
     Raffle public raffle;
@@ -77,7 +79,7 @@ contract RaffleTest is Test, CodeConstants {
         vm.warp(block.timestamp + interval + 1);
         vm.roll(block.number + 1);
 
-        (bool upkeepNeeded, ) = raffle.checkUpkeep("");
+        (bool upkeepNeeded,) = raffle.checkUpkeep("");
 
         assert(!upkeepNeeded);
     }
@@ -88,7 +90,7 @@ contract RaffleTest is Test, CodeConstants {
         vm.warp(block.timestamp + interval + 1);
         vm.roll(block.number + 1);
         raffle.performUpkeep("");
-        (bool upkeepNeeded, ) = raffle.checkUpkeep("");
+        (bool upkeepNeeded,) = raffle.checkUpkeep("");
         assert(!upkeepNeeded);
     }
 
@@ -111,14 +113,7 @@ contract RaffleTest is Test, CodeConstants {
         balance = balance + entranceFee;
         numPlayers = 1;
 
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                Raffle.Raffle__UpkeepNotNeeded.selector,
-                balance,
-                numPlayers,
-                rState
-            )
-        );
+        vm.expectRevert(abi.encodeWithSelector(Raffle.Raffle__UpkeepNotNeeded.selector, balance, numPlayers, rState));
         raffle.performUpkeep("");
     }
 
@@ -130,10 +125,7 @@ contract RaffleTest is Test, CodeConstants {
         _;
     }
 
-    function testPerformUpkeepUpdatesRaffleStateAndEmitsRequestId()
-        public
-        raffleEntered
-    {
+    function testPerformUpkeepUpdatesRaffleStateAndEmitsRequestId() public raffleEntered {
         vm.recordLogs();
         raffle.performUpkeep("");
         Vm.Log[] memory entries = vm.getRecordedLogs();
@@ -144,30 +136,21 @@ contract RaffleTest is Test, CodeConstants {
         assert(uint256(rState) == 1);
     }
 
-    function testFullFillRandomWordsCanOnlyBeCalledAfterPerformUpkeep(
-        uint256 randomRequestId
-    ) public raffleEntered SkipFork {
-        vm.expectRevert(VRFCoordinatorV2_5Mock.InvalidRequest.selector);
-        VRFCoordinatorV2_5Mock(vrfCoordinator).fulfillRandomWords(
-            randomRequestId,
-            address(raffle)
-        );
-    }
-
-    function testFullFillRandomWordsPicksAWinnerResetsAndSendsMoney()
+    function testFullFillRandomWordsCanOnlyBeCalledAfterPerformUpkeep(uint256 randomRequestId)
         public
         raffleEntered
         SkipFork
     {
+        vm.expectRevert(VRFCoordinatorV2_5Mock.InvalidRequest.selector);
+        VRFCoordinatorV2_5Mock(vrfCoordinator).fulfillRandomWords(randomRequestId, address(raffle));
+    }
+
+    function testFullFillRandomWordsPicksAWinnerResetsAndSendsMoney() public raffleEntered SkipFork {
         uint256 additionalEntrants = 3;
         uint256 startingIndex = 1;
         address expectedWinner = address(1);
 
-        for (
-            uint256 i = startingIndex;
-            i < startingIndex + additionalEntrants;
-            i++
-        ) {
+        for (uint256 i = startingIndex; i < startingIndex + additionalEntrants; i++) {
             address newPlayer = address(uint160(i));
             hoax(newPlayer, 1 ether);
             raffle.enterRaffle{value: entranceFee}();
@@ -180,10 +163,7 @@ contract RaffleTest is Test, CodeConstants {
         raffle.performUpkeep("");
         Vm.Log[] memory entries = vm.getRecordedLogs();
         bytes32 requestId = entries[1].topics[1];
-        VRFCoordinatorV2_5Mock(vrfCoordinator).fulfillRandomWords(
-            uint256(requestId),
-            address(raffle)
-        );
+        VRFCoordinatorV2_5Mock(vrfCoordinator).fulfillRandomWords(uint256(requestId), address(raffle));
 
         address recentWinner = raffle.getRecentWinner();
         Raffle.RaffleState rState = raffle.getRaffleState();
