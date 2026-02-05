@@ -1,0 +1,47 @@
+# Compiler files
+cache/
+out/
+
+# Ignores development broadcast logs
+!/broadcast
+/broadcast/*/31337/
+/broadcast/**/dry-run/
+
+# Ignore all broadcast files (contains sensitive transaction data)
+broadcast/
+
+# Docs
+docs/
+
+# Environment variables (contains private keys, RPC URLs, API keys)
+.env
+.env.*
+!.env.example
+
+# Foundry files
+lcov.info
+
+*.code-workspace
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Node modules (if using npm/yarn)
+node_modules/
+package-lock.json
+yarn.lock
+
+# IDEs
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
