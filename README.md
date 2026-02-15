@@ -13,6 +13,13 @@ This project demonstrates a production-ready raffle smart contract with the foll
 - **Winner Takes All**: The entire prize pool is awarded to the randomly selected winner
 - **State Management**: Implements proper state transitions (OPEN/CALCULATING) to prevent interference during winner selection
 
+## Validation Snapshot (Feb 2026)
+
+- `forge test`: **12/12 tests passed**
+- Includes randomized testing (`runs: 256`) for VRF fulfillment flows
+- `forge coverage --report summary`: **66.46% lines**, **69.93% statements** (project total)
+- Main contract coverage (`src/Raffle.sol`): **94.12% lines**, **96.00% statements**, **90.00% funcs**
+
 ## Built With
 
 - **Foundry**: Modern, fast Ethereum development framework
